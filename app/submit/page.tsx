@@ -4,9 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Trash2 } from 'lucide-react';
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
-import ImageUploader from "../components/imageupload";
-import ImageUploader2 from "../components/imageupload2";
-import ImageUploader3 from "../components/imageupload3";
+import { Progress} from "../components/shadcn/progess";
 
 
 export default function Component() {
@@ -20,6 +18,10 @@ export default function Component() {
   const grabMostRelevantPerson = useAction(api.ideas.grabMostRelevantPerson);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [mostRelevantPerson, setMostRelevantPerson] = useState("");
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -56,6 +58,8 @@ export default function Component() {
 
   const handleSubmitImage = async () => {
     setIsLoading(true);
+    setSubmitted(true);
+    setProgress(0);
     for (let i = 0; i < images.length; i++) {
       const currentImage = images[i];
       try {
@@ -63,11 +67,14 @@ export default function Component() {
         const top5 = await handleSearch({ query: result });
         const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
         const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
+        setMostRelevantPerson(mostRelevantPerson);
+        setProgress(((i + 1) / images.length) * 100);
       } catch (error) {
         console.error(`Error processing image ${i + 1}:`, error);
       }
     }
     setIsLoading(false);
+    setUploadComplete(true);
   };
 
   const handleSubmitInterest = () => {
@@ -75,31 +82,36 @@ export default function Component() {
   };
 
   return (
-  <div className="flex justify-center items-center min-h-screen bg-gray-100">
-    {step === 1 && (
-      <div className="w-11/12 max-w-lg mx-auto">
-        <h2 className="text-xl font-bold mb-4 text-center">Enter Your Interests</h2>
-        <textarea
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          className="w-full h-32 p-2 border rounded-lg bg-purple-200 text-white"
-          placeholder="Enter your interests..."
-          style={{ borderRadius: '1rem', backgroundColor: '#E9D8FD', color: 'white' }}
-        />
-        <div className="flex justify-center">
-          <button
-            onClick={handleSubmitInterest}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Submit
-          </button>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      {step === 1 && (
+        <div className="w-11/12 max-w-lg mx-auto">
+          <h2 className="text-xl text-black font-bold mb-4 text-center">Enter Your Name</h2>
+          <textarea
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            className="w-full h-32 p-2 border focus:outline-none"
+            placeholder="Jane Doe"
+            style={{ 
+              backgroundColor: 'transparent', 
+              color: 'black', 
+              borderColor: 'black', 
+              borderWidth: '1px' 
+            }}
+          />
+          <div className="flex justify-center">
+            <button
+              onClick={handleSubmitInterest}
+              className="mt-4 px-4 py-2 bg-black text-white rounded"
+            >
+              Submit
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
-      {step === 2 && (
+      {step === 2 && !submitted && !isLoading && (
         <div className="w-full max-w-md bg-gray-100">
-          <Card className="w-full max-w-md">
+          <Card className="w-full max-w-md bg-black">
             <CardHeader>
               <CardTitle>Upload Images</CardTitle>
               <CardDescription>
@@ -109,7 +121,7 @@ export default function Component() {
                   <li>A place you love visiting</li>
                   <li>A memorable event or moment</li>
                 </ul>
-                Click the button to upload up to 5 images, then submit when ready.
+                Upload up an images, then submit when ready.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -139,11 +151,27 @@ export default function Component() {
           </Card>
         </div>
       )}
+
+      {isLoading && (
+        <div className="w-full max-w-md mx-auto text-center">
+          <div className="w-full bg-gray-300 rounded-full h-2.5 mt-4">
+            <div
+              className="bg-blue-600 h-2.5 rounded-full"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p className="text-xl text-black mt-4">Processing your images...</p>
+        </div>
+      )}
+
+      {uploadComplete && !isLoading && (
+        <div className="w-full max-w-md mx-auto text-center mt-4">
+          <p className="text-xl text-black font-bold">{mostRelevantPerson} is your conenctions</p>
+        </div>
+      )}
     </div>
   );
 }
-
-
 
 /*
 export default function Component() {

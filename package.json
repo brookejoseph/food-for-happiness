@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.4.2",
     "@instructor-ai/instructor": "^1.5.0",
+    "@radix-ui/react-progress": "^1.1.0",
     "@xenova/transformers": "^2.17.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
