@@ -1,13 +1,17 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/shadcn/card";
 import { Trash2 } from 'lucide-react';
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { Progress} from "../components/shadcn/progess";
+import Particles from "../components/aceternity/particles";
+import { useTheme } from "next-themes";
+
 
 
 export default function Component() {
+  const { theme } = useTheme();
   const [images, setImages] = useState<string[]>([]);
   const [step, setStep] = useState(1);
   const [userInput, setUserInput] = useState("");
@@ -23,6 +27,11 @@ export default function Component() {
   const [submitted, setSubmitted] = useState(false);
   const [mostRelevantPerson, setMostRelevantPerson] = useState("");
   const [mostRelevantTopics, setMostRelevantTopics] = useState([""]);
+  const [color, setColor] = useState("#000000");
+ 
+  useEffect(() => {
+    setColor(theme === "dark" ? "#ffffff" : "#000000");
+  }, [theme]);
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -88,7 +97,7 @@ export default function Component() {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       {step === 1 && (
         <div className="w-11/12 max-w-lg mx-auto">
-          <h2 className="text-xl text-black font-bold mb-4 text-center">Enter Your Name</h2>
+          <h2 className="text-xl text-black dm-serif-text-regular mb-4 text-center">Enter Your Name</h2>
           <textarea
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
@@ -104,7 +113,7 @@ export default function Component() {
           <div className="flex justify-center">
             <button
               onClick={handleSubmitInterest}
-              className="mt-4 px-4 py-2 bg-black text-white rounded"
+              className="mt-4 px-4 py-2 bg-black text-white dm-serif-text-regular rounded"
             >
               Submit
             </button>
@@ -116,10 +125,10 @@ export default function Component() {
         <div className="w-full max-w-md bg-gray-100">
           <Card className="w-full max-w-md bg-black">
             <CardHeader>
-              <CardTitle>Upload Images</CardTitle>
-              <CardDescription>
-                <p className="mb-2">Here are some ideas for images you can upload:</p>
-                <ul className="list-disc pl-5 mb-4">
+              <CardTitle className="dm-serif-text-regular">Upload Images</CardTitle>
+              <CardDescription className="dm-serif-text-regular">
+                <p className="mb-2 dm-serif-text-regular">Here are some ideas for images you can upload:</p>
+                <ul className="list-disc pl-5 mb-4 dm-serif-text-regular">
                   <li>Your favorite hobby in action</li>
                   <li>A place you love visiting</li>
                   <li>A memorable event or moment</li>
@@ -144,10 +153,10 @@ export default function Component() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <button onClick={handleUploadClick} disabled={images.length >= 5}>
+              <button className="dm-serif-text-regular" onClick={handleUploadClick} disabled={images.length >= 5}>
                 Upload Images
               </button>
-              <button onClick={handleSubmitImage}>
+              <button className="dm-serif-text-regular" onClick={handleSubmitImage}>
                 Submit
               </button>
             </CardFooter>
@@ -157,12 +166,7 @@ export default function Component() {
 
       {isLoading && (
         <div className="w-full max-w-md mx-auto text-center">
-          <div className="w-full bg-gray-300 rounded-full h-2.5 mt-4">
-            <div
-              className="bg-blue-600 h-2.5 rounded-full"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
+          <Progress value={progress} />
           <p className="text-xl text-black mt-4">Processing your image...</p>
         </div>
       )}

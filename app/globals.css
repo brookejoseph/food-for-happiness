@@ -51,3 +51,11 @@ body {
   font-weight: 600;
   font-style: italic;
 }
+
+
+.edu-au-vic-wa-nt-hand-italic {
+  font-family: "Edu AU VIC WA NT Hand", cursive;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+}

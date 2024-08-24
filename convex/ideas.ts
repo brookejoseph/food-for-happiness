@@ -66,6 +66,26 @@ export const grabMostRelevantPerson =action({
   },
 });
 
+
+export const handleQuery =action({
+  args: {
+    query: v.any(),
+  },
+  handler: async (ctx, args)=> {
+    const searchResults = await ctx.vectorSearch("Image", "by_embedding", {
+      vector: args.query,
+      limit: 5,
+    });
+    console.log("searchResults with in most relevant person", searchResults);
+    let names: any[] = [];
+    for (const result of searchResults) {
+      const name: any = await ctx.runQuery(internal.ideas.idToTName, {id: result._id})
+      names.push(name);
+    }
+    return names;
+  },
+});
+
 export const idToTopics = internalQuery({
   args: {
     id: v.string(),
