@@ -11,15 +11,15 @@ import ImageUploader3 from "../components/imageupload3";
 
 export default function Component() {
   const [images, setImages] = useState<string[]>([]);
+  const [step, setStep] = useState(1);
+  const [userInput, setUserInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const generateEmbeddings = useAction(api.ideas.generateEmbeddings);
   const storingEmbedName = useMutation(api.ideas.storeinfo);
   const handleSearch = useAction(api.ideas.handleSearch);
-
-
+  const grabMostRelevantPerson = useAction(api.ideas.grabMostRelevantPerson);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [userInput, setUserInput] = useState("");
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -55,68 +55,90 @@ export default function Component() {
   };
 
   const handleSubmitImage = async () => {
-      setIsLoading(true);
-      for (let i = 0; i < images.length; i++) {
-        const currentImage = images[i];
-        const callBackend = async () => {
-          try {
-            const result = await generateEmbeddings({ prompt: currentImage });
-            console.log("result", result);
-            const top5 = await handleSearch({query: result});
-            console.log("top5", top5);
-            const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5 });
-          } catch (error) {
-            console.error(`Error processing image ${i + 1}:`, error);
-          }
-        };
-        await callBackend();
+    setIsLoading(true);
+    for (let i = 0; i < images.length; i++) {
+      const currentImage = images[i];
+      try {
+        const result = await generateEmbeddings({ prompt: currentImage });
+        const top5 = await handleSearch({ query: result });
+        const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
+        const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
+      } catch (error) {
+        console.error(`Error processing image ${i + 1}:`, error);
       }
-      setIsLoading(false);
-      console.log("All images processed.");
+    }
+    setIsLoading(false);
   };
-  
+
+  const handleSubmitInterest = () => {
+    setStep(2);
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <div>
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Upload Images</CardTitle>
-            <CardDescription>
-              Click the button to upload up to 5 images, then submit when ready.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {images.length < 5 && (
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-            )}
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              {images.map((image, index) => (
-                <img key={index} src={image} alt={`Uploaded ${index + 1}`} className="w-full h-auto" />
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <button onClick={handleUploadClick} disabled={images.length >= 5}>
-              Upload Images
-            </button>
-            <button onClick={handleSubmitImage}>
-              Submit
-            </button>
-          </CardFooter>
-        </Card>
-      </div>
+      {step === 1 && (
+        <div className="w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Enter Your Interests</h2>
+          <textarea
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            className="w-full h-32 p-2 border rounded"
+            placeholder="Enter your interests..."
+          />
+          <button
+            onClick={handleSubmitInterest}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Submit
+          </button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="w-full max-w-md">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Upload Images</CardTitle>
+              <CardDescription>
+                <p className="mb-2">Here are some ideas for images you can upload:</p>
+                <ul className="list-disc pl-5 mb-4">
+                  <li>Your favorite hobby in action</li>
+                  <li>A place you love visiting</li>
+                  <li>A memorable event or moment</li>
+                </ul>
+                Click the button to upload up to 5 images, then submit when ready.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {images.length < 5 && (
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              )}
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                {images.map((image, index) => (
+                  <img key={index} src={image} alt={`Uploaded ${index + 1}`} className="w-full h-auto" />
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <button onClick={handleUploadClick} disabled={images.length >= 5}>
+                Upload Images
+              </button>
+              <button onClick={handleSubmitImage}>
+                Submit
+              </button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
-
-
 
 
 
