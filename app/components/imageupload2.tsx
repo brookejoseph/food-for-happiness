@@ -8,8 +8,8 @@ interface ImageUploaderProps {
   setResizedSrc: any;
 }
 
-export default function ImageUploader({ previewSrc, setPreviewSrc, setResizedSrc} : ImageUploaderProps) {
-  const handleImageChange = (uploaded:any) => {
+export default function ImageUploader2({ previewSrc, setPreviewSrc, setResizedSrc} : ImageUploaderProps) {
+  const handleImageChange2 = (uploaded:any) => {
     console.log("uploaded", uploaded)
     const file = uploaded.target.files[0];
     if (file) {
@@ -66,7 +66,7 @@ export default function ImageUploader({ previewSrc, setPreviewSrc, setResizedSrc
         id="fileInput"
         type="file"
         accept="image/*,text/plain"
-        onChange={handleImageChange}
+        onChange={handleImageChange2}
         className="hidden"
       />
       <button

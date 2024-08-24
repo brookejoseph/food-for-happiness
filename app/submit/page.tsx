@@ -5,8 +5,8 @@ import { Trash2 } from 'lucide-react';
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
 import ImageUploader from "../components/imageupload";
-import { log } from "console";
-
+import ImageUploader2 from "../components/imageupload2";
+import ImageUploader3 from "../components/imageupload3";
 
 
 export default function Component() {
@@ -14,11 +14,10 @@ export default function Component() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const generateEmbeddings = useAction(api.ideas.generateEmbeddings);
   const storingEmbedName = useMutation(api.ideas.storeinfo);
-  
-  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-  const [resizedSrc, setResizedSrc] = useState<string | null>(null);
-  const [originalImgHeight, setOriginalImgHeight] = useState(0);
-  const [originalImgWidth, setOriginalImgWidth] = useState(0);
+  const handleSearch = useAction(api.ideas.handleSearch);
+
+
+
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState("");
 
@@ -61,13 +60,11 @@ export default function Component() {
         const currentImage = images[i];
         const callBackend = async () => {
           try {
-            console.log(`Processing image ${i + 1} of ${images.length}`);
-            console.log("currentImage", currentImage);
-            console.log("userInput", userInput);
             const result = await generateEmbeddings({ prompt: currentImage });
             console.log("result", result);
-            const id = await storingEmbedName({ name: userInput, embedding: result });
-            console.log(`Image ${i + 1} processed and stored with ID:`, id);
+            const top5 = await handleSearch({query: result});
+            console.log("top5", top5);
+            const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5 });
           } catch (error) {
             console.error(`Error processing image ${i + 1}:`, error);
           }
@@ -122,3 +119,193 @@ export default function Component() {
 
 
 
+
+/*
+export default function Component() {
+  const [images, setImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const topic = useAction(api.ideas.generateTopicIdea2);
+  const storeTopicAndEmbedding = useMutation(api.ideas.storeTopicAndEmbedding);
+  const generateTextEmbeddings = useAction(api.ideas.generateEmbeddingsText);
+
+
+
+  const generateEmbeddings = useAction(api.ideas.generateEmbeddings);
+  const storingEmbedName = useMutation(api.ideas.storeinfo);
+  const handleSearch = useAction(api.ideas.handleSearch);
+
+  const [previewSrc, setPreviewSrc] = useState(null);
+  const [resizedSrc, setResizedSrc] = useState(null);
+
+  const [previewSrc2, setPreviewSrc2] = useState(null);
+  const [resizedSrc2, setResizedSrc2] = useState(null);
+
+  const [previewSrc3, setPreviewSrc3] = useState(null);
+  const [resizedSrc3, setResizedSrc3] = useState(null);
+
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmitImage = async () => {
+      setIsLoading(true);
+      const callBackend = async () => {
+        try {
+          console.log("resizedSrc", resizedSrc);
+          const result = await generateEmbeddings({prompt: resizedSrc ?? ``});
+          console.log("result", result);
+          const id = await storingEmbedName({name: "test", embedding: result});
+          const top5 = await handleSearch({query: result});
+          console.log("top5", top5);
+          setIsLoading(false);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      void callBackend();
+  }
+  return (
+    <>
+  <div className="flex justify-center items-center min-h-screen">
+    <div>
+      <h1>Start by uploading an image</h1>
+      <ImageUploader
+      previewSrc={previewSrc} 
+      setPreviewSrc={setPreviewSrc}
+      setResizedSrc={setResizedSrc} />
+    </div>
+    <button onClick={handleSubmitImage}> Submit </button>
+  </div>
+
+  <div className="flex justify-center items-center min-h-screen">
+    <div>
+      <h1>Start by uploading an image</h1>
+      <ImageUploader2
+      previewSrc={previewSrc2} 
+      setPreviewSrc={setPreviewSrc2}
+      setResizedSrc={setResizedSrc2} />
+    </div>
+    <button onClick={handleSubmitImage}> Submit </button>
+  </div>
+
+
+  <div className="flex justify-center items-center min-h-screen">
+    <div>
+      <h1>Start by uploading an image</h1>
+      <ImageUploader3
+      previewSrc={previewSrc3} 
+      setPreviewSrc={setPreviewSrc3}
+      setResizedSrc={setResizedSrc3} />
+    </div>
+    <button onClick={handleSubmitImage}> Submit </button>
+  </div>
+  </>
+  );
+}
+
+
+*/
+
+
+
+
+
+/*
+  const handleSubmit = async () => {
+      const callBackend = async () => {
+        try {
+          const prompt = await topic();
+          const realPrompt = prompt ?? ""
+          console.log("prompt", realPrompt);
+          const result = await generateTextEmbeddings({prompt: realPrompt});
+          console.log("result", result);
+          const id = await storeTopicAndEmbedding({topic: realPrompt, embedding: result});
+          console.log("result", result);
+          setIsLoading(false);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      void callBackend();
+  }*/
+
+{  /*<Card className="w-full max-w-md">
+  <CardHeader>
+    <CardTitle>Upload Images</CardTitle>
+    <CardDescription>
+      Click the button to upload up to 5 images, then submit when ready.
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div className="grid grid-cols-3 gap-4">
+      {images.map((image, index) => (
+        <div key={index} className="relative">
+          <img
+            src={image}
+            alt={`Image ${index + 1}`}
+            width={200}
+            height={200}
+            className="rounded-md object-cover"
+            style={{ aspectRatio: "200/200", objectFit: "cover" }}
+          />
+          <button
+            onClick={() => handleRemoveImage(index)}
+            className="absolute top-0 right-0 text-white rounded-full p-1"
+          >
+            <Trash2/>
+          </button>
+        </div>
+      ))}
+    </div>
+    {images.length < 5 && (
+      <input
+        type="file"
+        multiple
+        ref={fileInputRef}
+        onChange={handleFileInputChange}
+        style={{ display: 'none' }}
+      />
+    )}
+  </CardContent>
+  <CardFooter className="flex justify-between">
+    <button onClick={handleUploadImages} disabled={images.length >= 5}>
+      Upload Images
+    </button>
+    <button onClick={() => console.log("Images submitted:", images)}>
+      Submit
+    </button>
+  </CardFooter>
+</Card>
+*/}
+
+/*
+
+  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    const newImages: string[] = [];
+
+    
+
+    for (let i = 0; i < files!.length; i++) {
+      if (images.length + newImages.length < 5) {
+        //const url = URL.createObjectURL(files![i]).replace(/^blob:/, '');
+        console.log("File:", files![i]);
+        const url = await getPermantURl()
+        console.log("URL:", url);
+        newImages.push(url?.URL ?? "");
+      } else {
+        break;
+      }
+    }
+    setImages((prevImages) => [...prevImages, ...newImages]);
+    console.log("Images:", images);
+  };
+
+  const handleUploadImages = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+*/

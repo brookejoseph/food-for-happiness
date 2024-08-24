@@ -8,7 +8,7 @@ interface ImageUploaderProps {
   setResizedSrc: any;
 }
 
-export default function ImageUploader({ previewSrc, setPreviewSrc, setResizedSrc} : ImageUploaderProps) {
+export default function ImageUploader3({ previewSrc, setPreviewSrc, setResizedSrc} : ImageUploaderProps) {
   const handleImageChange = (uploaded:any) => {
     console.log("uploaded", uploaded)
     const file = uploaded.target.files[0];
