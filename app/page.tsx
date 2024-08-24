@@ -34,7 +34,10 @@ export default function Home() {
           <span className="dm-serif-text-regular-italic lg:text-8xl block"> worth a 1000</span>
           <WordRotate className="dm-serif-text-regular font-bold lg:text-8xl" words={["friends", "connections", "interests", "secrets"]}/>
         </div>
-        <a className="absolute bottom-10 text-xl md:text-2xl" href="/submit">Try it</a>
+        <div className="absolute bottom-10 flex items-center">
+          <a className="text-xl md:text-2xl mr-4" href="/submit">Try it</a>
+          <a className="text-xl md:text-2xl" href="/search">Search</a>
+        </div>
       </div>
     </>
   );

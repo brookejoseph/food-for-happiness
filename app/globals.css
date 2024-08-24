@@ -59,3 +59,42 @@ body {
   font-weight: 100;
   font-style: normal;
 }
+
+
+
+/* TableComponent.css */
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff; /* Dark background */
+  color: #fff; /* White text */
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #333; /* Darker border for rows */
+  text-align: left;
+}
+
+.custom-table th {
+  background-color: #ffffff; /* Slightly darker background for header */
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #ffffff; /* Slightly lighter background on hover */
+}
+
+.custom-table td {
+  position: relative;
+}
+
+.custom-table td::after {
+  content: '...';
+  position: absolute;
+  right: 10px;
+  color: #ffffff; /* Lighter color for ellipsis */
+}
