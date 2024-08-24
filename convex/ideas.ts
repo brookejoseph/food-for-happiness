@@ -22,10 +22,12 @@ export const handleSearch = action({
     
     console.log("searchResults", searchResults);
     const topics: number[][] = [];
+    const topicNames: string[] = [];
     for (const result of searchResults) {
-      const topicName: any = await ctx.runQuery(internal.ideas.idToTopics, {id: result._id});
+      const topicName = await ctx.runQuery(internal.ideas.idToTopics, {id: result._id});
       if (topicName) {
-        topics.push(topicName);
+        topics.push(topicName?.embedding ?? []);
+        topicNames.push(topicName?.topic ?? "");
       }
     }
     
@@ -37,7 +39,8 @@ export const handleSearch = action({
     console.log("Average vector:", averageVector);
 
     return {
-      averageVector
+      averageVector,
+      topicNames,
     };
   },
 });
@@ -57,7 +60,7 @@ export const grabMostRelevantPerson =action({
     for (const result of searchResults) {
       if(result._id !== args.id){
         const name: any = await ctx.runQuery(internal.ideas.idToTName, {id: result._id})
-        return name;
+        return {name: name};
       }
     }
   },
@@ -72,7 +75,8 @@ export const idToTopics = internalQuery({
     if (!topic) return null;
     const topics = await ctx.db.get(topic);
     const topicName = topics?.embedding;
-    return topicName;
+    const topicName2 = topics?.topic;
+    return {embedding: topicName, topic: topicName2};
   },
 });
 

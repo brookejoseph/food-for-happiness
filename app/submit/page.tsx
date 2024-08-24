@@ -22,6 +22,7 @@ export default function Component() {
   const [uploadComplete, setUploadComplete] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mostRelevantPerson, setMostRelevantPerson] = useState("");
+  const [mostRelevantTopics, setMostRelevantTopics] = useState([""]);
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -65,9 +66,11 @@ export default function Component() {
       try {
         const result = await generateEmbeddings({ prompt: currentImage });
         const top5 = await handleSearch({ query: result });
+        setMostRelevantTopics(top5.topicNames);
+        console.log("top5 setMostRelevantTopics", top5.topicNames);
         const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
         const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
-        setMostRelevantPerson(mostRelevantPerson);
+        setMostRelevantPerson(mostRelevantPerson?.name);
         setProgress(((i + 1) / images.length) * 100);
       } catch (error) {
         console.error(`Error processing image ${i + 1}:`, error);
@@ -121,7 +124,7 @@ export default function Component() {
                   <li>A place you love visiting</li>
                   <li>A memorable event or moment</li>
                 </ul>
-                Upload up an images, then submit when ready.
+                Upload up an image, then submit when ready.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -160,13 +163,21 @@ export default function Component() {
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="text-xl text-black mt-4">Processing your images...</p>
+          <p className="text-xl text-black mt-4">Processing your image...</p>
         </div>
       )}
 
       {uploadComplete && !isLoading && (
         <div className="w-full max-w-md mx-auto text-center mt-4">
-          <p className="text-xl text-black font-bold">{mostRelevantPerson} is your conenctions</p>
+          <p className="text-xl text-black font-bold">{mostRelevantPerson} is your conenction</p>
+          <div className="text-xl text-black font-bold">
+              You guys should talk about
+              <ul>
+                {mostRelevantTopics.map((topic, index) => (
+                  <li key={index}>{topic}</li>
+                ))}
+              </ul>
+            </div>
         </div>
       )}
     </div>
