@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Chivo, DM_Serif_Text  } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from './ConvexClientProvider';
 
 
+
 const inter = Inter({ subsets: ["latin"] });
+const chivo = Chivo({ subsets: ["latin"] });
+const serfi = DM_Serif_Text({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
        <ConvexClientProvider>
-      <body className={inter.className}>{children}</body>
+      <body className={`${chivo.className}  ${serfi.className}`}>{children}</body>
       </ConvexClientProvider>
     </html>
   );

@@ -75,16 +75,18 @@ export default function Component() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      {step === 1 && (
-        <div className="w-full max-w-md">
-          <h2 className="text-xl font-bold mb-4">Enter Your Interests</h2>
-          <textarea
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            className="w-full h-32 p-2 border rounded"
-            placeholder="Enter your interests..."
-          />
+  <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    {step === 1 && (
+      <div className="w-11/12 max-w-lg mx-auto">
+        <h2 className="text-xl font-bold mb-4 text-center">Enter Your Interests</h2>
+        <textarea
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          className="w-full h-32 p-2 border rounded-lg bg-purple-200 text-white"
+          placeholder="Enter your interests..."
+          style={{ borderRadius: '1rem', backgroundColor: '#E9D8FD', color: 'white' }}
+        />
+        <div className="flex justify-center">
           <button
             onClick={handleSubmitInterest}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
@@ -92,10 +94,11 @@ export default function Component() {
             Submit
           </button>
         </div>
-      )}
+      </div>
+    )}
 
       {step === 2 && (
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md bg-gray-100">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Upload Images</CardTitle>
