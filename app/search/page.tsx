@@ -104,6 +104,8 @@ const SearchComponent = () => {
     );
   }
 
+  const typewriterText = names.map(name => `Meet ${name.name} from the University of Waterloo`);
+
   return (
     <div className="flex items-center justify-center h-screen">
       <a href="/" className="absolute top-0 left-0 text-2xl p-4">
@@ -133,7 +135,7 @@ const SearchComponent = () => {
             </tbody>
           </table>
         </div>
-      ) : (
+      ): (
         <div className="flex flex-col items-center justify-center w-full mx-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-8 text-black chivo-Roman text-center">
             Find

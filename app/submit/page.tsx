@@ -9,6 +9,8 @@ import { useTheme } from "next-themes";
 import LoadingAnimation from "../components/fonts/loadingani";
 import NumberTicker from "../components/fonts/counter";
 import ShineBorder from "../components/fonts/shine";
+import { ArrowBigLeft, Search, X } from 'lucide-react';
+
 
 export default function Component() {
   const { theme } = useTheme();
@@ -95,6 +97,9 @@ export default function Component() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <a href="/" className="absolute top-0 left-0 text-2xl p-4">
+        <ArrowBigLeft color="#0f0f0f" />
+      </a>
       {step === 1 && (
         <div className="w-11/12 max-w-lg mx-auto">
           <h2 className="text-xl text-black dm-serif-text-regular mb-4 text-center">Enter Your Name</h2>
