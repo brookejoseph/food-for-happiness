@@ -67,25 +67,25 @@ body {
 .custom-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #ffffff; /* Dark background */
+  background-color: #f9fafb; /* Dark background */
   color: #fff; /* White text */
 }
 
 .custom-table th,
 .custom-table td {
   padding: 12px 15px;
-  border-bottom: 1px solid #333; /* Darker border for rows */
+  border-bottom: 1px solid #d9d9d9; /* Darker border for rows */
   text-align: left;
 }
 
 .custom-table th {
-  background-color: #ffffff; /* Slightly darker background for header */
+  background-color: #f9fafb; /* Slightly darker background for header */
   text-transform: uppercase;
   font-weight: bold;
 }
 
 .custom-table tbody tr:hover {
-  background-color: #ffffff; /* Slightly lighter background on hover */
+  background-color: #e7e8e9; /* Slightly lighter background on hover */
 }
 
 .custom-table td {

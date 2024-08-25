@@ -7,7 +7,9 @@ import { useQuery, useMutation, useAction } from "convex/react";
 import { Progress} from "../components/shadcn/progess";
 import Particles from "../components/aceternity/particles";
 import { useTheme } from "next-themes";
-
+import LoadingAnimation from "../components/fonts/loadingani";
+import NumberTicker from "../components/fonts/counter";
+import ShineBorder from "../components/fonts/shine";
 
 
 export default function Component() {
@@ -22,12 +24,12 @@ export default function Component() {
   const grabMostRelevantPerson = useAction(api.ideas.grabMostRelevantPerson);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mostRelevantPerson, setMostRelevantPerson] = useState("");
   const [mostRelevantTopics, setMostRelevantTopics] = useState([""]);
   const [color, setColor] = useState("#000000");
+  const [compatability, setCompatability] = useState(0);
  
   useEffect(() => {
     setColor(theme === "dark" ? "#ffffff" : "#000000");
@@ -69,7 +71,6 @@ export default function Component() {
   const handleSubmitImage = async () => {
     setIsLoading(true);
     setSubmitted(true);
-    setProgress(0);
     for (let i = 0; i < images.length; i++) {
       const currentImage = images[i];
       try {
@@ -80,7 +81,8 @@ export default function Component() {
         const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
         const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
         setMostRelevantPerson(mostRelevantPerson?.name);
-        setProgress(((i + 1) / images.length) * 100);
+        const percentage = Math.floor((mostRelevantPerson?.score ?? 0) * 100);
+        setCompatability(percentage);
       } catch (error) {
         console.error(`Error processing image ${i + 1}:`, error);
       }
@@ -166,22 +168,30 @@ export default function Component() {
 
       {isLoading && (
         <div className="w-full max-w-md mx-auto text-center">
-          <Progress value={progress} />
-          <p className="text-xl text-black mt-4">Processing your image...</p>
+          <LoadingAnimation />
+          <p className="text-xl dm-serif-text-regular text-black mt-4">Processing your image this takes a min...</p>
         </div>
       )}
 
       {uploadComplete && !isLoading && (
         <div className="w-full max-w-md mx-auto text-center mt-4">
-          <p className="text-xl text-black font-bold">{mostRelevantPerson} is your conenction</p>
-          <div className="text-xl text-black font-bold">
+          <Card className="bg-gray-50">
+            <CardTitle>
+            <p className="text-xl text-black dm-serif-text-regular-italic mt-8">Your conenction:</p>
+          <p className="text-xl text-black chivo-Roman ">{mostRelevantPerson}</p>
+          </CardTitle>
+          <p className="whitespace-pre-wrap text-8xl font-medium tracking-tighter text-black dark:text-white mt-12 mb-12">
+              <NumberTicker className="dm-serif-text-regular text-black" value={compatability} />
+            </p>
+          <div className="text-lg text-black chivo-Roman mb-8">
               You guys should talk about
-              <ul>
+              <ul className="text-sm chivo-Roman">
                 {mostRelevantTopics.map((topic, index) => (
                   <li key={index}>{topic}</li>
                 ))}
               </ul>
             </div>
+            </Card>
         </div>
       )}
     </div>

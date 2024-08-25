@@ -9,6 +9,8 @@ import { PlaceholdersAndVanishInput } from "../components/aceternity/placeholder
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
 import TableComponent from "../components/shadcn/table";
+import LoadingAnimation from "../components/fonts/loadingani";
+
 
 
 const SearchComponent = () => {
@@ -20,7 +22,7 @@ const SearchComponent = () => {
   const [names, setNames] = useState<any[]>([]);
 
   const placeholders = [
-    "Find me someone who likes doge challengers",
+    "Find me someone who likes talking about philosophy",
     "Find me someone who likes to code",
     "Find me someone who likes to cook",
     "Find me someone who likes to play chess",
@@ -47,10 +49,19 @@ const SearchComponent = () => {
     console.log("conditional", !loading && names !== null );
   };
   console.log("conditional", names.length != 0 );
-  const columns = ["Name", "School", "Program", "Ranked Relevance"];
+  const columns = ["Name", "School", "Program"];
 
 
   //            <div className="text-black chivo-Roman" key={index}>{name}</div>
+
+  if (loading) {
+    return (
+        <div className="w-full max-w-md mx-auto min-h-screen text-center">
+        <LoadingAnimation />
+        <p className="text-xl dm-serif-text-regular text-black mt-4">Processing your image this takes a min...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -58,8 +69,8 @@ const SearchComponent = () => {
         <ArrowBigLeft color="#0f0f0f" />
       </a>
       {names.length != 0 ? (
-          <div className="text-white chivo-Roman">
-          <table className="custom-table">
+        <div className="bg-gray-100 text-white chivo-Roman mt-[-250px] relative">
+        <table className="custom-table">
             <thead>
               <tr>
                 {columns.map((column, index) => (
@@ -75,7 +86,6 @@ const SearchComponent = () => {
                   <td className="text-black chivo-Roman">{name}</td>
                   <td className="text-black chivo-Roman">University of Waterloo</td>
                   <td className="text-black chivo-Roman">Computer Science</td>
-                  <td className="text-black chivo-Roman">{index + 1}</td>
                 </tr>
               ))}
             </tbody>

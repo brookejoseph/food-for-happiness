@@ -60,7 +60,7 @@ export const grabMostRelevantPerson =action({
     for (const result of searchResults) {
       if(result._id !== args.id){
         const name: any = await ctx.runQuery(internal.ideas.idToTName, {id: result._id})
-        return {name: name};
+        return {name: name, score: result._score};
       }
     }
   },
