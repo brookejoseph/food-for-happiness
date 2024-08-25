@@ -1,20 +1,18 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/shadcn/card";
-import { Trash2 } from 'lucide-react';
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
-import { Progress} from "../components/shadcn/progess";
+import { Progress } from "../components/shadcn/progess";
 import Particles from "../components/aceternity/particles";
 import { useTheme } from "next-themes";
 import LoadingAnimation from "../components/fonts/loadingani";
 import NumberTicker from "../components/fonts/counter";
 import ShineBorder from "../components/fonts/shine";
 
-
 export default function Component() {
   const { theme } = useTheme();
-  const [images, setImages] = useState<string[]>([]);
+  const [image, setImage] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [userInput, setUserInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -29,8 +27,8 @@ export default function Component() {
   const [mostRelevantPerson, setMostRelevantPerson] = useState("");
   const [mostRelevantTopics, setMostRelevantTopics] = useState([""]);
   const [color, setColor] = useState("#000000");
-  const [compatability, setCompatability] = useState(0);
- 
+  const [compatibility, setCompatibility] = useState(0);
+
   useEffect(() => {
     setColor(theme === "dark" ? "#ffffff" : "#000000");
   }, [theme]);
@@ -55,7 +53,7 @@ export default function Component() {
       const file = files[0];
       try {
         const base64Url = await convertFileToBase64(file);
-        setImages((prevImages) => [...prevImages, base64Url]);
+        setImage(base64Url);
       } catch (error) {
         console.error('Error converting file to base64:', error);
       }
@@ -63,30 +61,30 @@ export default function Component() {
   };
 
   const handleUploadClick = () => {
-    if (fileInputRef.current) {
+    if (fileInputRef.current && !image) {
       fileInputRef.current.click();
     }
   };
 
   const handleSubmitImage = async () => {
+    if (!image) return;
+
     setIsLoading(true);
     setSubmitted(true);
-    for (let i = 0; i < images.length; i++) {
-      const currentImage = images[i];
-      try {
-        const result = await generateEmbeddings({ prompt: currentImage });
-        const top5 = await handleSearch({ query: result });
-        setMostRelevantTopics(top5.topicNames);
-        console.log("top5 setMostRelevantTopics", top5.topicNames);
-        const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
-        const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
-        setMostRelevantPerson(mostRelevantPerson?.name);
-        const percentage = Math.floor((mostRelevantPerson?.score ?? 0) * 100);
-        setCompatability(percentage);
-      } catch (error) {
-        console.error(`Error processing image ${i + 1}:`, error);
-      }
+    try {
+      const result = await generateEmbeddings({ prompt: image });
+      const top5 = await handleSearch({ query: result });
+      setMostRelevantTopics(top5.topicNames);
+      console.log("top5 setMostRelevantTopics", top5.topicNames);
+      const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
+      const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
+      setMostRelevantPerson(mostRelevantPerson?.name);
+      const percentage = Math.floor((mostRelevantPerson?.score ?? 0) * 100);
+      setCompatibility(percentage);
+    } catch (error) {
+      console.error('Error processing image:', error);
     }
+
     setIsLoading(false);
     setUploadComplete(true);
   };
@@ -127,7 +125,7 @@ export default function Component() {
         <div className="w-full max-w-md bg-gray-100">
           <Card className="w-full max-w-md bg-black">
             <CardHeader>
-              <CardTitle className="dm-serif-text-regular">Upload Images</CardTitle>
+              <CardTitle className="dm-serif-text-regular">Upload Image</CardTitle>
               <CardDescription className="dm-serif-text-regular">
                 <p className="mb-2 dm-serif-text-regular">Here are some ideas for images you can upload:</p>
                 <ul className="list-disc pl-5 mb-4 dm-serif-text-regular">
@@ -135,30 +133,27 @@ export default function Component() {
                   <li>A place you love visiting</li>
                   <li>A memorable event or moment</li>
                 </ul>
-                Upload up an image, then submit when ready.
+                Upload an image, then submit when ready.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {images.length < 5 && (
+              {!image && (
                 <input
                   type="file"
-                  multiple
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
               )}
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                {images.map((image, index) => (
-                  <img key={index} src={image} alt={`Uploaded ${index + 1}`} className="w-full h-auto" />
-                ))}
-              </div>
+              {image && (
+                <img src={image} alt="Uploaded" className="w-full h-auto mt-4" />
+              )}
             </CardContent>
             <CardFooter className="flex justify-between">
-              <button className="dm-serif-text-regular" onClick={handleUploadClick} disabled={images.length >= 5}>
-                Upload Images
+              <button className="dm-serif-text-regular" onClick={handleUploadClick} disabled={!!image}>
+                Upload Image
               </button>
-              <button className="dm-serif-text-regular" onClick={handleSubmitImage}>
+              <button className="dm-serif-text-regular" onClick={handleSubmitImage} disabled={!image}>
                 Submit
               </button>
             </CardFooter>
@@ -177,13 +172,13 @@ export default function Component() {
         <div className="w-full max-w-md mx-auto text-center mt-4">
           <Card className="bg-gray-50">
             <CardTitle>
-            <p className="text-xl text-black dm-serif-text-regular-italic mt-8">Your conenction:</p>
-          <p className="text-xl text-black chivo-Roman ">{mostRelevantPerson}</p>
-          </CardTitle>
-          <p className="whitespace-pre-wrap text-8xl font-medium tracking-tighter text-black dark:text-white mt-12 mb-12">
-              <NumberTicker className="dm-serif-text-regular text-black" value={compatability} />
+              <p className="text-xl text-black dm-serif-text-regular-italic mt-8">Your connection:</p>
+              <p className="text-xl text-black chivo-Roman ">{mostRelevantPerson}</p>
+            </CardTitle>
+            <p className="whitespace-pre-wrap text-8xl font-medium tracking-tighter text-black dark:text-white mt-12 mb-12">
+              <NumberTicker className="dm-serif-text-regular text-black" value={compatibility} />
             </p>
-          <div className="text-lg text-black chivo-Roman mb-8">
+            <div className="text-lg text-black chivo-Roman mb-8">
               You guys should talk about
               <ul className="text-sm chivo-Roman">
                 {mostRelevantTopics.map((topic, index) => (
@@ -191,12 +186,13 @@ export default function Component() {
                 ))}
               </ul>
             </div>
-            </Card>
+          </Card>
         </div>
       )}
     </div>
   );
 }
+
 
 /*
 export default function Component() {
