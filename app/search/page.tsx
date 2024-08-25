@@ -49,14 +49,14 @@ const SearchComponent = () => {
     console.log("conditional", !loading && names !== null );
   };
   console.log("conditional", names.length != 0 );
-  const columns = ["Name", "School", "Program"];
+  const columns = ["Name", "School", "Program", "Compatible"];
 
 
   //            <div className="text-black chivo-Roman" key={index}>{name}</div>
 
   if (loading) {
     return (
-        <div className="w-full max-w-md mx-auto min-h-screen text-center">
+      <div className="flex flex-col items-center justify-center h-screen text-center">
         <LoadingAnimation />
         <p className="text-xl dm-serif-text-regular text-black mt-4">Processing your image this takes a min...</p>
       </div>
@@ -83,9 +83,10 @@ const SearchComponent = () => {
             <tbody>
               {names.map((name, index) => (
                 <tr key={index}>
-                  <td className="text-black chivo-Roman">{name}</td>
+                  <td className="text-black chivo-Roman">{name.name}</td>
                   <td className="text-black chivo-Roman">University of Waterloo</td>
                   <td className="text-black chivo-Roman">Computer Science</td>
+                  <td className="text-black chivo-Roman">{ Math.floor((name.score) * 100)} %</td>
                 </tr>
               ))}
             </tbody>

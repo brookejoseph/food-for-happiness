@@ -80,7 +80,8 @@ export const handleQuery =action({
     let names: any[] = [];
     for (const result of searchResults) {
       const name: any = await ctx.runQuery(internal.ideas.idToTName, {id: result._id})
-      names.push(name);
+      const score: any = result._score;
+      names.push({name: name, score: score});
     }
     return names;
   },
