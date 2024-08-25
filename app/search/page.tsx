@@ -90,7 +90,7 @@ const SearchComponent = () => {
     console.log("conditional", !loading && names !== null );
   };
   console.log("conditional", names.length != 0 );
-  const columns = ["Name", "School", "Program", "Compatible"];
+  const columns = ["Name", "School", "Compatible"];
 
 
   //            <div className="text-black chivo-Roman" key={index}>{name}</div>
@@ -128,7 +128,6 @@ const SearchComponent = () => {
                 <tr key={index}>
                   <td className="text-black chivo-Roman">{name.name}</td>
                   <td className="text-black chivo-Roman">University of Waterloo</td>
-                  <td className="text-black chivo-Roman">Computer Science</td>
                   <td className="text-black chivo-Roman">{Math.floor(name.score * 100)} %</td>
                 </tr>
               ))}
