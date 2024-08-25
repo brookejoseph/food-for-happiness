@@ -35,8 +35,8 @@ export default function Home() {
           <WordRotate className="dm-serif-text-regular font-bold lg:text-8xl" words={["friends", "connections", "interests", "secrets"]}/>
         </div>
         <div className="absolute bottom-10 flex items-center">
-          <a className="text-xl md:text-2xl mr-4" href="/submit">Try it</a>
-          <a className="text-xl md:text-2xl" href="/search">Search</a>
+          <a className="text-xl md:text-2xl mr-16" href="/submit">Make a connection</a>
+          <a className="text-xl md:text-2xl" href="/search">Find someone </a>
         </div>
       </div>
     </>

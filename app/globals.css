@@ -93,7 +93,6 @@ body {
 }
 
 .custom-table td::after {
-  content: '...';
   position: absolute;
   right: 10px;
   color: #ffffff; /* Lighter color for ellipsis */
