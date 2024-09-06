@@ -10,8 +10,22 @@ import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
 import TableComponent from "../components/shadcn/table";
 import LoadingAnimation from "../components/fonts/loadingani";
+import TavilyClient from "tavily"
+import { Pinecone } from '@pinecone-database/pinecone';
 
 
+/*
+import natural from 'natural';
+import { WordTokenizer } from 'natural';
+const stemmer = natural.PorterStemmer;
+
+function preprocessQuery(query: string): string {
+  let processedQuery = query.toLowerCase();
+  processedQuery = processedQuery.replace(/[^\w\s]/gi, '');
+  const tokens = processedQuery.split(' ');
+  const stemmedTokens = tokens.map(token => stemmer.stem(token));
+  return stemmedTokens.join(' ');
+}*/
 
 
 const TypewriterEffect = ({ names }: any) => {
@@ -55,9 +69,12 @@ const TypewriterEffect = ({ names }: any) => {
 
 
 const SearchComponent = () => {
+
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const searchValue = useAction(api.ideas.handleQuery)
+  const pineconeSearch = useAction(api.ideas.grabIdFromPinecone);
   const generateEmbeddings = useAction(api.ideas.generateEmbeddingsText);
   const [loading, setLoading] = useState(false);
   const [names, setNames] = useState<any[]>([]);
@@ -70,26 +87,40 @@ const SearchComponent = () => {
     "Find me someone who can help me with calculus",
   ];
 
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        resolve(base64String);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     setSearchQuery(e.target.value);
   };
+
+      //const newQuery = preprocessQuery(searchQuery);
+    //setSearchQuery(newQuery);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log("submitted");
     e.preventDefault();
     setLoading(true);
     const query = await generateEmbeddings({ prompt: searchQuery });
-    console.log("submitted");
-    console.log("query", query);
     const fetchedNames = await searchValue({ query: query.embedding });
-    console.log("fetchedNames", fetchedNames);
+    const names = await pineconeSearch({ queryEmbed: query.embedding });
+    console.log("names from pinecone", names);
     setNames(fetchedNames);
     setLoading(false);
-    console.log("loading", loading);
-    console.log("conditional", !loading && names !== null );
   };
-  console.log("conditional", names.length != 0 );
+
   const columns = ["Name", "School", "Compatible"];
 
 
@@ -135,19 +166,19 @@ const SearchComponent = () => {
           </table>
         </div>
       ): (
-        <div className="flex flex-col items-center justify-center w-full mx-4">
-          <h1 className="text-4xl md:text-6xl font-bold mb-8 text-black chivo-Roman text-center">
-            Find
-            <span className="dm-serif-text-regular-italic text-5xl md:text-5xl"> someone </span>
-            who matches your
-            <span className="font-mono text-5xl md:text-6xl"> weird interests</span>
-          </h1>
-          <PlaceholdersAndVanishInput
-            placeholders={placeholders}
-            onChange={handleChange}
-            onSubmit={onSubmit}
-          />
-        </div>
+<div className="flex flex-col items-center justify-center w-full mx-4">
+  <h1 className="text-4xl md:text-6xl font-bold mb-8 text-black chivo-Roman text-center">
+    Find
+    <span className="dm-serif-text-regular-italic text-5xl md:text-5xl"> someone </span>
+    who matches your
+    <span className="font-mono text-5xl md:text-6xl"> weird interests</span>
+  </h1>
+  <PlaceholdersAndVanishInput
+    placeholders={placeholders}
+    onChange={handleChange}
+    onSubmit={onSubmit}
+  />
+</div>
       )}
     </div>
   );

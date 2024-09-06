@@ -10,6 +10,9 @@ import LoadingAnimation from "../components/fonts/loadingani";
 import NumberTicker from "../components/fonts/counter";
 import ShineBorder from "../components/fonts/shine";
 import { ArrowBigLeft, Search, X } from 'lucide-react';
+import {InsertEmbed} from "@/convex/pinecone/test";
+//const index = pc.index('quickstart');
+
 
 
 export default function Component() {
@@ -75,10 +78,12 @@ export default function Component() {
     setSubmitted(true);
     try {
       const result = await generateEmbeddings({ prompt: image });
+
       const top5 = await handleSearch({ query: result });
       setMostRelevantTopics(top5.topicNames);
       console.log("top5 setMostRelevantTopics", top5.topicNames);
       const id = await storingEmbedName({ name: userInput, embedding: result, top3: top5.averageVector });
+      await InsertEmbed(result, id);
       const mostRelevantPerson = await grabMostRelevantPerson({ id: id, query: top5.averageVector });
       setMostRelevantPerson(mostRelevantPerson?.name);
       const percentage = Math.floor((mostRelevantPerson?.score ?? 0) * 100);
