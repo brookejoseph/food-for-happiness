@@ -17,6 +17,7 @@ import type {
 import type * as ideas from "../ideas.js";
 import type * as openai_clip from "../openai/clip.js";
 import type * as openai_gpt from "../openai/gpt.js";
+import type * as pinecone_test from "../pinecone/test.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   ideas: typeof ideas;
   "openai/clip": typeof openai_clip;
   "openai/gpt": typeof openai_gpt;
+  "pinecone/test": typeof pinecone_test;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

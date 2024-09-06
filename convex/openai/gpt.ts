@@ -32,7 +32,18 @@ export async function main() {
 
 export async function generateTopicIdea() {
     const completion = await api.chat.completions.create({
-      messages: [{ role: "system", content: `come up with a one word random topics people might have in common and not even know it` 
+      messages: [{ role: "system", content: `Given a user and ` 
+    }],
+      model: TEXT_MODEL,
+    });
+    console.log(completion.choices[0]);
+    return completion.choices[0].message.content;
+  }
+
+
+  export async function generateRelevantTags(query: string) {
+    const completion = await api.chat.completions.create({
+      messages: [{ role: "system", content: `Break this query: ${query} into 3 relevant tags.`  
     }],
       model: TEXT_MODEL,
     });

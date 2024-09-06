@@ -8,6 +8,125 @@ import {getEmbeddings, getEmbeddingsText} from './openai/clip';
 import {generateTopicIdea} from './openai/gpt';
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation, useAction } from "convex/react";
+import {InsertEmbed, grabEmbedding} from './pinecone/test';
+import {generateRelevantTags} from './openai/gpt';
+
+interface QueryData {
+  textEmbedding: any;
+  imageEmbedding: any;
+}
+
+interface PineconeData {
+  results: any;
+  matches: [
+    {
+      id: string;
+      score: number;
+      value: any;
+    }
+  ];
+  namespace: any;
+  usage: any;
+}
+
+
+
+
+function weightedAverageEmbedding(textEmbedding: any, imageEmbedding: any, textWeight: number, imageWeight: number): any {
+  if (!imageEmbedding) {
+    return textEmbedding.map((value: any) => value * textWeight);
+  }
+
+  const totalWeight = textWeight + imageWeight;
+  const normalizedTextWeight = textWeight / totalWeight;
+  const normalizedImageWeight = imageWeight / totalWeight;
+
+  return textEmbedding.map((value: any, index: any) => normalizedTextWeight * value + normalizedImageWeight * imageEmbedding[index]);
+}
+
+
+export const returnRelevantUsers = action({
+  args: {
+    textQuery: v.any(),
+    imageQuery: v.any(),
+  },
+  handler: async (ctx, args) => {
+    let newEmbed;
+    if (args.imageQuery) {
+      newEmbed = weightedAverageEmbedding(args.textQuery, args.imageQuery, 0.4, 0.6);
+    } else {
+      newEmbed = weightedAverageEmbedding(args.textQuery, args.imageQuery, 1.0, 0.0);
+    }
+    
+    const pineconeResults: any = await ctx.runAction(internal.ideas.grabIdFromPineconeInternal, { queryEmbed: newEmbed });
+    console.log("pineconeResults", pineconeResults);
+    const mostRelevantPerson: any = await ctx.runQuery(internal.ideas.idToTName, { id: pineconeResults.matches[0].id });
+    return mostRelevantPerson;
+  },
+});
+
+
+export const grabIdFromPineconeInternal = internalAction({
+  args: {
+    queryEmbed: v.any(),
+  },
+  handler: async (ctx, args) => {
+    console.log("args within the grabIdFromPinecone", args)
+    const response = await grabEmbedding(args.queryEmbed);
+    console.log("response within the grabIdFromPinecone", response)
+    return response;
+  },
+});
+
+
+export const produceRelevantTags = action({
+  args: {
+    query: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tags = await generateRelevantTags(args.query);
+    return tags;
+  },
+});
+
+
+
+export const handlePineconeResults = action({
+  args: {
+    queryEmbed: v.any(),
+  },
+  handler: async (ctx, args) => {
+    console.log("args within the handlePineconeResults", args)
+    const response = await grabEmbedding(args.queryEmbed);
+    console.log("response within the handlePineconeResults", response)
+    return response;
+  },
+});
+
+export const grabIdFromPinecone = action({
+  args: {
+    queryEmbed: v.any(),
+  },
+  handler: async (ctx, args) => {
+    console.log("args within the grabIdFromPinecone", args)
+    const response = await grabEmbedding(args.queryEmbed);
+    console.log("response within the grabIdFromPinecone", response)
+    return response;
+  },
+});
+
+
+export const storeImageEmbeddingPinecone = action({
+  args: {
+    id: v.string(),
+    embedding: v.any(),
+  },
+  handler: async (ctx, args) => {
+    console.log("args", args)
+    await InsertEmbed(args.embedding, args.id);
+  },
+});
+
 
 export const handleSearch = action({
   args: {
@@ -67,7 +186,7 @@ export const grabMostRelevantPerson =action({
 });
 
 
-export const handleQuery =action({
+export const handleQuery = action({
   args: {
     query: v.any(),
   },
@@ -113,13 +232,15 @@ export const idToTName = internalQuery({
     return topicName;
   },
 });
+
+
 export const generateEmbeddings = action({
     args: {
       prompt: v.string(),
     },
     handler: async (ctx, args) => {
       console.log("args", args)
-      const embeddings = getEmbeddings(args.prompt);
+      const embeddings = await getEmbeddings(args.prompt);
       return embeddings;
     },
   });
@@ -135,6 +256,8 @@ export const generateEmbeddings = action({
       return embeddings;
     },
   });
+
+
   export const storeinfo = mutation({
     args: {
       name: v.string(),
@@ -143,12 +266,18 @@ export const generateEmbeddings = action({
     },
     handler: async (ctx, args) => {
       const { name, embedding, top3 } = args;
-      const id = await ctx.db.insert("Image", { name, embedding, top3 });
+      const id = await ctx.db.insert("Image", { name, embedding, top3 });      
+      console.log("Upsert to Pinecone successful");
       return id;
     },
   });
 
-
+  export const generateTopicIdea2 = action({
+    handler: async (ctx) => {
+      const idea = generateTopicIdea();
+      return idea;
+    },
+  });
 
 
 /*
