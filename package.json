@@ -21,7 +21,7 @@
     "ldrs": "^1.0.2",
     "lucide-react": "^0.429.0",
     "natural": "^8.0.1",
-    "next": "14.2.5",
+    "next": "^14.2.23",
     "next-themes": "^0.3.0",
     "openai": "^4.56.0",
     "pinecone-client": "^2.0.0",
