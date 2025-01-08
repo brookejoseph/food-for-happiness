@@ -68,6 +68,7 @@ export default function Component() {
   const handleUploadClick = () => {
     if (fileInputRef.current && !image) {
       fileInputRef.current.click();
+      console.log("within the hanlde upload click")
     }
   };
 
