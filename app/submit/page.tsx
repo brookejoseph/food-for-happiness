@@ -79,6 +79,7 @@ export default function Component() {
     setSubmitted(true);
     try {
       const result = await generateEmbeddings({ prompt: image });
+      console.log("within the hanlde submit image")
 
       const top5 = await handleSearch({ query: result });
       setMostRelevantTopics(top5.topicNames);
